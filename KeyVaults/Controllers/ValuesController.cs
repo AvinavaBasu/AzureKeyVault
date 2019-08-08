@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.KeyVault;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace KeyVaults.Controllers
 {
@@ -40,6 +42,32 @@ namespace KeyVaults.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+
+
+        [HttpGet("{Contact}")]
+
+        public async Task<IActionResult> Contact()
+        {
+            var keyVaultClient = new KeyVaultClient(AuthencticaVault);
+            var result = await keyVaultClient.GetSecretAsync(
+                "https://demokeyvaultazure.vault.azure.net/secrets/DefaultConnection/f4965b55574341f581fb3905fb3cc817");
+            var con = result.Value;
+            return View();
+        }
+
+        private IActionResult View()
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task<string> AuthencticaVault(string authority, string resource, string scope)
+        {
+            var clientCredential = new ClientCredential("65108ee3-71b8-487b-af4a-45aeab479821",
+                "?p:@5*dX164]cpQwvh=z[c-R*GKq19l_");
+            var authenticationContext= new AuthenticationContext(authority);
+            var result=await authenticationContext.AcquireTokenAsync(resource, clientCredential);
+            return result.AccessToken;
         }
     }
 }
